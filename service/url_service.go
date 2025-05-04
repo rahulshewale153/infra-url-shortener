@@ -58,3 +58,14 @@ func (s *urlService) GetOriginalURL(ctx context.Context, shortURLID string) (str
 
 	return originalURL, nil
 }
+
+// Get Top 3 Domain
+func (s *urlService) GetTop3Domain(ctx context.Context) ([]string, error) {
+	domains, err := s.urlStorageRepo.GetTop3Domain(ctx)
+	if err != nil {
+		log.Println("GetTop3Domain: data couldn't be retrieve")
+		return nil, errors.New("top 3 domain couldn't be retrieve")
+	}
+
+	return domains, nil
+}

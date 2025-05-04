@@ -39,6 +39,7 @@ func (s *server) Start() {
 	r := mux.NewRouter()
 	r.HandleFunc("/url/shortener", urlHandler.URLShortener).Methods(http.MethodPost)
 	r.HandleFunc("/{short_url_id}", urlHandler.GetOriginalURL).Methods(http.MethodGet)
+	r.HandleFunc("/url/top-domains", urlHandler.GetTop3Domain).Methods(http.MethodGet)
 
 	go func() {
 		log.Println("Server starting on :8080")

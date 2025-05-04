@@ -85,3 +85,28 @@ func TestGetOriginalURL(t *testing.T) {
 		assert.Equal(t, expectedOriginalURL, w.Header().Get("Location"))
 	})
 }
+
+func TestTop3Domain(t *testing.T) {
+	mockURLService := new(mock.MockURLService)
+	urlHandler := NewURLHandler(mockURLService)
+
+	t.Run("error occurred while retrieving top 3 domain, function should be return an error", func(t *testing.T) {
+		expectedError := errors.New("top 3 domain couldn't be retrieve")
+		mockURLService.On("GetTop3Domain", mocks.Anything).Return([]string{}, expectedError).Once()
+		req := httptest.NewRequest(http.MethodGet, "/url/top-domains", nil)
+		w := httptest.NewRecorder()
+		urlHandler.GetTop3Domain(w, req)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, expectedError.Error(), strings.Trim(w.Body.String(), "\n"))
+	})
+
+	t.Run("Top 3 domain found in collection", func(t *testing.T) {
+		expectedDomains := []string{"www.example1.com", "www.example2.com", "www.example3.com"}
+		mockURLService.On("GetTop3Domain", mocks.Anything).Return(expectedDomains, nil).Once()
+		req := httptest.NewRequest(http.MethodGet, "/url/top-domains", nil)
+		w := httptest.NewRecorder()
+
+		urlHandler.GetTop3Domain(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+}

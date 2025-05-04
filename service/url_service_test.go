@@ -84,3 +84,26 @@ func TestGetOriginalURL(t *testing.T) {
 	})
 
 }
+
+func TestTop3Domain(t *testing.T) {
+	mockUrlStoreRepo := new(mock.MockURLStore)
+	urlService := NewURLService(mockUrlStoreRepo)
+
+	t.Run("error occurred while retrieving top  domain, function should be return an error", func(t *testing.T) {
+		expectedError := errors.New("top 3 domain couldn't be retrieve")
+		mockUrlStoreRepo.On("GetTop3Domain", context.Background()).Return([]string{}, expectedError).Once()
+
+		topDomains, err := urlService.GetTop3Domain(context.Background())
+		assert.Equal(t, expectedError, err)
+		assert.Empty(t, topDomains)
+	})
+
+	t.Run("valid request by user, function should be return top 3 domain", func(t *testing.T) {
+		expectedTopDomains := []string{"www.originalurl.com", "www.example.com", "www.test.com"}
+		mockUrlStoreRepo.On("GetTop3Domain", context.Background()).Return(expectedTopDomains, nil).Once()
+
+		topDomains, err := urlService.GetTop3Domain(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, expectedTopDomains, topDomains)
+	})
+}

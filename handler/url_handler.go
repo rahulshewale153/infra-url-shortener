@@ -60,3 +60,16 @@ func (h *URLHandler) GetOriginalURL(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, originalURL, http.StatusFound)
 }
+
+// Get Top 3 Domain
+func (h *URLHandler) GetTop3Domain(w http.ResponseWriter, r *http.Request) {
+	domains, err := h.urlService.GetTop3Domain(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set(CONTENT_TYPE, APPLICATION_JSON)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(domains)
+}
