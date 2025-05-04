@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"sort"
 	"sync"
 )
 
@@ -45,4 +46,33 @@ func (r *urlStorageRepo) GetOriginalURL(ctx context.Context, shortURLID string) 
 	}
 
 	return originalURL, nil
+}
+
+// Get Top 3 Domain
+func (r *urlStorageRepo) GetTop3Domain(ctx context.Context) ([]string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	type domainCount struct {
+		domain string
+		count  int
+	}
+
+	domainCounts := make([]domainCount, 0, len(r.domainRequest))
+	for domain, count := range r.domainRequest {
+		domainCounts = append(domainCounts, domainCount{domain: domain, count: count})
+	}
+
+	// Sort the domain counts in descending order
+	sort.Slice(domainCounts, func(i, j int) bool {
+		return domainCounts[i].count > domainCounts[j].count
+	})
+
+	// Get the top 3 domains
+	top3Domains := make([]string, 0, 3)
+	for i := 0; i < 3 && i < len(domainCounts); i++ {
+		top3Domains = append(top3Domains, domainCounts[i].domain)
+	}
+
+	return top3Domains, nil
 }

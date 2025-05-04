@@ -39,3 +39,20 @@ func TestGetOriginalURL(t *testing.T) {
 		assert.Equal(t, originalURL, "http://www.originalurl.com/21324541")
 	})
 }
+
+func TestGetTop3Domain(t *testing.T) {
+	repo := NewURLStorageRepo()
+	shortID := "Short12w"
+	domain := "www.originalurl.co"
+
+	t.Run("Top 3 domain found in collection", func(t *testing.T) {
+		// Store the original URL first
+		err := repo.Store(context.Background(), shortID, "http://www.originalurl.com/21324541", domain)
+		assert.Empty(t, err)
+
+		// Now test Top2Domain Method
+		topDomains, err := repo.GetTop3Domain(context.Background())
+		assert.Empty(t, err)
+		assert.NotEmpty(t, topDomains)
+	})
+}
