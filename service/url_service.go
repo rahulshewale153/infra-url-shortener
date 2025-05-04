@@ -22,7 +22,7 @@ func NewURLService(urlStorageRepo repository.URLStorageRepo) URLService {
 
 // generate short url and store into the map
 func (s *urlService) GetURLShortener(ctx context.Context, originalURL string) (string, error) {
-
+	//validate the url
 	u, err := url.Parse(originalURL)
 	if err != nil || strings.TrimSpace(originalURL) == "" {
 		log.Println("GetURLShortener: invalid url pass by user", originalURL)
@@ -31,6 +31,8 @@ func (s *urlService) GetURLShortener(ctx context.Context, originalURL string) (s
 
 	//get short url length by current millisecond value
 	shortURLID := utils.GenerateEncodeBase62(int(time.Millisecond))
+
+	//store the url data into map
 	err = s.urlStorageRepo.Store(ctx, shortURLID, originalURL, strings.ToLower(u.Hostname()))
 	if err != nil {
 		log.Println("GetURLShortener: data couldn't be store")
