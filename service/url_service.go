@@ -29,6 +29,12 @@ func (s *urlService) GetURLShortener(ctx context.Context, originalURL string) (s
 		return "", errors.New("provided url is invalid")
 	}
 
+	//check the original url already exist in the map
+	if originalURL, ok := s.urlStorageRepo.GetOriginalURL(ctx, originalURL); ok == nil {
+		log.Println("GetURLShortener: url already exist in the map")
+		return originalURL, nil
+	}
+
 	//get short url length by current millisecond value
 	shortURLID := utils.GenerateEncodeBase62(int(time.Millisecond))
 

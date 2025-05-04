@@ -28,9 +28,18 @@ func TestGetURLShortener(t *testing.T) {
 		assert.Equal(t, expectedError, err)
 	})
 
+	t.Run("url already exist in the map, function should be return short url", func(t *testing.T) {
+		validURL := "http://www.originalurl.com/21324541"
+		mockUrlStoreRepo.On("GetOriginalURL", context.Background(), validURL).Return(validURL, nil).Once()
+		shortURL, err := urlService.GetURLShortener(context.Background(), validURL)
+		assert.NoError(t, err)
+		assert.Equal(t, validURL, shortURL)
+	})
+
 	t.Run("store error occurred, function should be return an error", func(t *testing.T) {
 		validURL := "http://www.originalurl.com/21324541"
 		expectedError := errors.New("generate request couldn't be processed")
+		mockUrlStoreRepo.On("GetOriginalURL", context.Background(), validURL).Return("", errors.New("short URL not found")).Once()
 		mockUrlStoreRepo.On("Store", context.Background(), mocks.Anything, validURL, "www.originalurl.com").Return(expectedError).Once()
 
 		shortURL, err := urlService.GetURLShortener(context.Background(), validURL)
@@ -40,6 +49,7 @@ func TestGetURLShortener(t *testing.T) {
 
 	t.Run("valid url send by user, function should be return short url", func(t *testing.T) {
 		validURL := "http://www.originalurl.com/21324541"
+		mockUrlStoreRepo.On("GetOriginalURL", context.Background(), validURL).Return("", errors.New("short URL not found")).Once()
 		mockUrlStoreRepo.On("Store", context.Background(), mocks.Anything, validURL, "www.originalurl.com").Return(nil).Once()
 
 		shortURL, err := urlService.GetURLShortener(context.Background(), validURL)

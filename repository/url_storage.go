@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"sync"
 )
 
@@ -31,4 +32,17 @@ func (r *urlStorageRepo) Store(ctx context.Context, shortURLID string, originalU
 	r.domainRequest[domain]++
 
 	return nil
+}
+
+// Get the original url by short url
+func (r *urlStorageRepo) GetOriginalURL(ctx context.Context, shortURLID string) (string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	originalURL, ok := r.shortUrlCollection[shortURLID]
+	if !ok {
+		return "", errors.New("short URL not found")
+	}
+
+	return originalURL, nil
 }
