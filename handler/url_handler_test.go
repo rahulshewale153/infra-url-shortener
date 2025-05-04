@@ -8,8 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/mux"
 	mock "github.com/rahulshewale153/infra-url-shortener/mock/service"
 	"github.com/stretchr/testify/assert"
+	mocks "github.com/stretchr/testify/mock"
 )
 
 func TestURLShortener(t *testing.T) {
@@ -52,4 +54,34 @@ func TestURLShortener(t *testing.T) {
 		assert.Contains(t, w.Body.String(), expectedShortURL)
 	})
 
+}
+
+func TestGetOriginalURL(t *testing.T) {
+	mockURLService := new(mock.MockURLService)
+	urlHandler := NewURLHandler(mockURLService)
+
+	t.Run("invalid short URL ID, function should be return an error", func(t *testing.T) {
+		shortURLID := "invalidShortID"
+		mockURLService.On("GetOriginalURL", mocks.Anything, shortURLID).Return("", errors.New("original url not found")).Once()
+		req := httptest.NewRequest(http.MethodGet, "/"+shortURLID, nil)
+		req = mux.SetURLVars(req, map[string]string{"short_url_id": shortURLID})
+		w := httptest.NewRecorder()
+
+		urlHandler.GetOriginalURL(w, req)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("valid short URL ID, function should be return original URL", func(t *testing.T) {
+		shortURLID := "Short12w"
+		expectedOriginalURL := "http://www.originalurl.com/21324541"
+		mockURLService.On("GetOriginalURL", mocks.Anything, shortURLID).Return(expectedOriginalURL, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/"+shortURLID, nil)
+		req = mux.SetURLVars(req, map[string]string{"short_url_id": shortURLID})
+		w := httptest.NewRecorder()
+
+		urlHandler.GetOriginalURL(w, req)
+		assert.Equal(t, http.StatusFound, w.Code)
+		assert.Equal(t, expectedOriginalURL, w.Header().Get("Location"))
+	})
 }

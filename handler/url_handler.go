@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/rahulshewale153/infra-url-shortener/model"
 	"github.com/rahulshewale153/infra-url-shortener/service"
 )
@@ -46,4 +47,16 @@ func (h *URLHandler) URLShortener(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(CONTENT_TYPE, APPLICATION_JSON)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+// GetOriginalURL handles the request to retrieve the original URL
+func (h *URLHandler) GetOriginalURL(w http.ResponseWriter, r *http.Request) {
+	shortURLID := mux.Vars(r)["short_url_id"]
+	originalURL, err := h.urlService.GetOriginalURL(r.Context(), shortURLID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	http.Redirect(w, r, originalURL, http.StatusFound)
 }

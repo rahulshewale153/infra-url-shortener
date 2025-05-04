@@ -47,3 +47,14 @@ func (s *urlService) GetURLShortener(ctx context.Context, originalURL string) (s
 
 	return shortURLID, nil
 }
+
+func (s *urlService) GetOriginalURL(ctx context.Context, shortURLID string) (string, error) {
+	//get the original url by short url
+	originalURL, err := s.urlStorageRepo.GetOriginalURL(ctx, shortURLID)
+	if err != nil {
+		log.Println("GetOriginalURL: data couldn't be retrieve")
+		return "", errors.New("invalid short url")
+	}
+
+	return originalURL, nil
+}

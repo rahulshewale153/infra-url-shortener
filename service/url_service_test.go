@@ -58,3 +58,29 @@ func TestGetURLShortener(t *testing.T) {
 	})
 
 }
+
+func TestGetOriginalURL(t *testing.T) {
+	mockUrlStoreRepo := new(mock.MockURLStore)
+	urlService := NewURLService(mockUrlStoreRepo)
+
+	t.Run("error occurred while retrieving original url, function should be return an error", func(t *testing.T) {
+		validShortURL := "short123"
+		expectedError := errors.New("invalid short url")
+		mockUrlStoreRepo.On("GetOriginalURL", context.Background(), validShortURL).Return("", expectedError).Once()
+
+		originalURL, err := urlService.GetOriginalURL(context.Background(), validShortURL)
+		assert.Equal(t, expectedError, err)
+		assert.Empty(t, originalURL)
+	})
+
+	t.Run("valid short url send by user, function should be return original url", func(t *testing.T) {
+		validShortURL := "short123"
+		expectedOriginalURL := "http://www.originalurl.com/21324541"
+		mockUrlStoreRepo.On("GetOriginalURL", context.Background(), validShortURL).Return(expectedOriginalURL, nil).Once()
+
+		originalURL, err := urlService.GetOriginalURL(context.Background(), validShortURL)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedOriginalURL, originalURL)
+	})
+
+}
