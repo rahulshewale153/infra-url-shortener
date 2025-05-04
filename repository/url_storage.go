@@ -13,6 +13,7 @@ type urlStorageRepo struct {
 }
 
 func NewURLStorageRepo() URLStorageRepo {
+	//initialize map
 	return &urlStorageRepo{
 		urlCollection:      make(map[string]string),
 		shortUrlCollection: make(map[string]string),
@@ -20,6 +21,7 @@ func NewURLStorageRepo() URLStorageRepo {
 	}
 }
 
+// store the url data into map
 func (r *urlStorageRepo) Store(ctx context.Context, shortURLID string, originalURL string, domain string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
