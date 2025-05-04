@@ -41,6 +41,7 @@ func (s *server) Start() {
 	r.HandleFunc("/{short_url_id}", urlHandler.GetOriginalURL).Methods(http.MethodGet)
 	r.HandleFunc("/url/top-domains", urlHandler.GetTop3Domain).Methods(http.MethodGet)
 
+	s.httpServer.Handler = r
 	go func() {
 		log.Println("Server starting on :8080")
 		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
