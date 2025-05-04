@@ -9,7 +9,7 @@ import (
 
 func TestStore(t *testing.T) {
 	repo := NewURLStorageRepo()
-	shortID := "bitln.com/Short12w"
+	shortID := "Short12w"
 	originalURL := "http://www.originalurl.com/21324541"
 	domain := "www.originalurl.co"
 	t.Run("Store Short and original url", func(t *testing.T) {

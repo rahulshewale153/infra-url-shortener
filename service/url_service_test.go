@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/rahulshewale153/infra-url-shortener/mock"
+	mock "github.com/rahulshewale153/infra-url-shortener/mock/repository"
 	"github.com/stretchr/testify/assert"
 	mocks "github.com/stretchr/testify/mock"
 )

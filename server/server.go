@@ -9,6 +9,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rahulshewale153/infra-url-shortener/handler"
+	"github.com/rahulshewale153/infra-url-shortener/repository"
+	"github.com/rahulshewale153/infra-url-shortener/service"
 )
 
 type server struct {
@@ -24,9 +26,18 @@ func NewServer(port int) *server {
 
 // service start with http endpoint
 func (s *server) Start() {
-	urlHandler := handler.NewURLHandler()
+	//setup repository
+	urlStorageRepo := repository.NewURLStorageRepo()
+
+	//setup service
+	urlService := service.NewURLService(urlStorageRepo)
+
+	//setup handler
+	urlHandler := handler.NewURLHandler(urlService)
+
+	//setup http server
 	r := mux.NewRouter()
-	r.HandleFunc("/", urlHandler.URLShortener).Methods(http.MethodGet)
+	r.HandleFunc("/url/shortener", urlHandler.URLShortener).Methods(http.MethodPost)
 
 	go func() {
 		log.Println("Server starting on :8080")
