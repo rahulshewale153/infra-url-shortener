@@ -1,0 +1,7 @@
+package repository
+
+import "context"
+
+type URLStorageRepo interface {
+	Store(ctx context.Context, shortURLID string, originalURL string, domain string) error
+}
